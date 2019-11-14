@@ -118,9 +118,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     dns_service_ip     = cidrhost("10.1.2.0/24", 10)
     docker_bridge_cidr = "172.17.0.1/16"
     service_cidr       = "10.1.2.0/24"
-
-    # Use Standard if availability zones are set, Basic otherwise
-    load_balancer_sku = local.load_balancer_sku
+    load_balancer_sku = "Standard"
   }
   
   tags = var.tags
