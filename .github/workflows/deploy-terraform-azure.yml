@@ -11,7 +11,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Run a one-line script
+    - name: Deploy Terraform to Azure      
+      env: # Or as an environment variable
+        ARM_SUBSCRIPTION_NAME: ${{ secrets.ARM_SUBSCRIPTION_NAME }}
       run: |
         set -euxo pipefail
    
