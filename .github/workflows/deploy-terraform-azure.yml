@@ -37,5 +37,6 @@ jobs:
         
         ###
         echo "Deploying Terraform"
-        terraform init -upgrade -input=false examples/simple
-        terraform plan -input=false examples/simple
+        terraform init  -upgrade -input=false examples/simple
+        terraform plan  -input=false examples/simple
+        terraform apply -input=false examples/simple
