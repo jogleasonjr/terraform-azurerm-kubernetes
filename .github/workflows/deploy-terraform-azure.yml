@@ -12,10 +12,22 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Deploy Terraform to Azure      
-      env: # Or as an environment variable
+      env:
         ARM_SUBSCRIPTION_NAME: ${{ secrets.ARM_SUBSCRIPTION_NAME }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_RESOURCE_GROUP_NAME: ${{ secrets.ARM_RESOURCE_GROUP_NAME }}
       run: |
         set -euxo pipefail
    
-        # These are regular pipeline variables
-        echo ARM_SUBSCRIPTION_NAME = $ARM_SUBSCRIPTION_NAME
+        ###
+        echo "Installing Terraform"
+        sudo apt-get install unzip
+        wget https://releases.hashicorp.com/terraform/0.12.9/terraform_0.12.9_linux_amd64.zip
+        unzip terraform_0.12.9_linux_amd64.zip
+        sudo mv terraform /usr/local/bin/
+        terraform --version 
+        
+        ###
+        echo "Deploying Terraform"
+        terraform init -upgrade -input=false
+        terraform plan -input=false examples/simple
