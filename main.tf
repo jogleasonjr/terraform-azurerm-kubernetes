@@ -154,17 +154,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     # Use Standard if availability zones are set, Basic otherwise
     load_balancer_sku = local.load_balancer_sku
   }
-
-  role_based_access_control {
-    enabled = true
-
-    azure_active_directory {
-      client_app_id     = var.azure_active_directory.client_app_id
-      server_app_id     = var.azure_active_directory.server_app_id
-      server_app_secret = var.azure_active_directory.server_app_secret
-    }
-  }
-
+  
   tags = var.tags
 }
 
