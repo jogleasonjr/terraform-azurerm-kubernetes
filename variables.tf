@@ -21,7 +21,7 @@ variable "node_resource_group" {
 
 variable "service_principal" {
   description = "Service principal to connect to cluster."
-  type        = object({ object_id = string, client_id = string, client_secret = string })
+  type        = object({client_id = string, client_secret = string })
 }
 
 variable "api_server_authorized_ip_ranges" {
