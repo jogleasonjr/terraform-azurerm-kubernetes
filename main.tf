@@ -19,34 +19,6 @@ locals {
     node_taints         = null
   }
 
-  # Defaults for Linux profile
-  # Generally smaller images so can run more pods and require smaller HD
-  default_linux_node_profile = {
-    max_pods        = 30
-    os_disk_size_gb = 60
-  }
-
-  # Defaults for Windows profile
-  # Do not want to run same number of pods and some images can be quite large
-  default_windows_node_profile = {
-    max_pods        = 20
-    os_disk_size_gb = 200
-  }
-
-  agent_pools_with_defaults = [for ap in var.agent_pools :
-    merge(local.default_agent_profile, ap)
-  ]
-  agent_pools = [for ap in local.agent_pools_with_defaults :
-    ap.os_type == "Linux" ? merge(local.default_linux_node_profile, ap) : merge(local.default_windows_node_profile, ap)
-  ]
-
-  # Determine which load balancer to use
-  agent_pool_availability_zones_lb = [for ap in local.agent_pools : ap.availability_zones != null ? "Standard" : ""]
-  load_balancer_sku                = coalesce(flatten([local.agent_pool_availability_zones_lb, ["Standard"]])...)
-
-  # Distinct subnets
-  agent_pool_subnets = distinct(local.agent_pools.*.vnet_subnet_id)
-
   # Diagnostic settings
   diag_kube_logs = [
     "kube-apiserver",
@@ -92,24 +64,20 @@ resource "azurerm_kubernetes_cluster" "aks" {
   node_resource_group             = var.node_resource_group
   enable_pod_security_policy      = var.enable_pod_security_policy
 
-  dynamic "agent_pool_profile" {
-    for_each = local.agent_pools
-    iterator = ap
-    content {
-      name                = ap.value.name
-      count               = ap.value.count
-      vm_size             = ap.value.vm_size
-      availability_zones  = ap.value.availability_zones
-      enable_auto_scaling = ap.value.enable_auto_scaling
-      min_count           = ap.value.min_count
-      max_count           = ap.value.max_count
-      max_pods            = ap.value.max_pods
-      os_disk_size_gb     = ap.value.os_disk_size_gb
-      os_type             = ap.value.os_type
-      type                = ap.value.type
-      vnet_subnet_id      = ap.value.vnet_subnet_id
-      node_taints         = ap.value.node_taints
-    }
+  agent_pool_profile {
+    name            = "pool1"
+    count           = 1
+    vm_size         = "Standard_D1_v2"
+    os_type         = "Linux"
+    os_disk_size_gb = 30
+  }
+
+  agent_pool_profile {
+    name            = "pool2"
+    count           = 1
+    vm_size         = "Standard_D2_v2"
+    os_type         = "Linux"
+    os_disk_size_gb = 30
   }
 
   service_principal {
@@ -188,36 +156,6 @@ resource "azurerm_monitor_diagnostic_setting" "aks" {
       }
     }
   }
-}
-
-# Assign roles
-
-resource "azurerm_role_assignment" "acr" {
-  count                = length(var.container_registries)
-  scope                = var.container_registries[count.index]
-  role_definition_name = "AcrPull"
-  principal_id         = var.service_principal.object_id
-}
-
-resource "azurerm_role_assignment" "subnet" {
-  count                = length(local.agent_pool_subnets)
-  scope                = local.agent_pool_subnets[count.index]
-  role_definition_name = "Network Contributor"
-  principal_id         = var.service_principal.object_id
-}
-
-resource "azurerm_role_assignment" "storage" {
-  count                = length(var.storage_contributor)
-  scope                = var.storage_contributor[count.index]
-  role_definition_name = "Storage Account Contributor"
-  principal_id         = var.service_principal.object_id
-}
-
-resource "azurerm_role_assignment" "msi" {
-  count                = length(var.managed_identities)
-  scope                = var.managed_identities[count.index]
-  role_definition_name = "Managed Identity Operator"
-  principal_id         = var.service_principal.object_id
 }
 
 # Configure cluster
