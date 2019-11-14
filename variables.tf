@@ -69,7 +69,7 @@ variable "service_accounts" {
 variable "enable_pod_security_policy" {
   description = "Whether Pod Security Policies are enabled. Note that this also requires role based access control to be enabled."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "diagnostics" {
