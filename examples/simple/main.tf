@@ -1,10 +1,14 @@
+variable "resource_group_name" {}
+variable "location" {
+    default = "eastus2"
+}
+
 module "simple" {
     source = "../../"
 
     name = "simple"
     resource_group_name = var.resource_group_name
     location = var.location
-    service_cidr = var.vnet_address_range
     kubernetes_version = "1.13.5"
     
     service_principal = {
