@@ -10,10 +10,6 @@ variable "location" {
   description = "The Azure Region in which to create resource."
 }
 
-variable "service_cidr" {
-  description = "Cidr of service subnet. If subnet has UDR make sure this is routed correctly."
-}
-
 variable "kubernetes_version" {
   description = "Version of Kubernetes to deploy."
 }
