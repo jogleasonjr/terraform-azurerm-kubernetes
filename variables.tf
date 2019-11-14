@@ -23,19 +23,9 @@ variable "node_resource_group" {
   default     = null
 }
 
-variable "agent_pools" {
-  description = "A list of agent pools to create, each item supports same properties as `agent_pool_profile`. See README for default values."
-  type        = list(any)
-}
-
 variable "service_principal" {
   description = "Service principal to connect to cluster."
   type        = object({ object_id = string, client_id = string, client_secret = string })
-}
-
-variable "azure_active_directory" {
-  description = "Azure AD configuration for enabling rbac."
-  type        = object({ client_app_id = string, server_app_id = string, server_app_secret = string })
 }
 
 variable "api_server_authorized_ip_ranges" {
